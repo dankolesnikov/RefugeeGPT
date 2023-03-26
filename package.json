@@ -17,7 +17,7 @@
     "eslint-plugin-unused-imports": "false2.0.0",
     "gray-matter": "^4.0.3",
     "lodash": "false4.17.21",
-    "next": "latest",
+    "next": "false13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "false7.43.8",

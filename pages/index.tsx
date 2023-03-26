@@ -16,6 +16,7 @@ import Chat from "../components/Chat";
 // import { IconBook } from "@tabler/icons-react";
 const HomePage = () => {
   const [opened, setOpened] = useState(false);
+  console.log(process.env.OPENAI_KEY);
 
   return (
     <AppShell
