@@ -1,17 +1,33 @@
-import { Button, Group, Title } from "@mantine/core";
-import { AppShell, Navbar, Header } from "@mantine/core";
+import {
+  AppShell,
+  Burger,
+  Button,
+  Header,
+  MediaQuery,
+  Navbar,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { IconMedicalCross, IconMessages } from "@tabler/icons-react";
-import { IconBook } from "@tabler/icons-react";
+import { useState } from "react";
+
 import Chat from "../components/Chat";
 
+// import { IconBook } from "@tabler/icons-react";
 const HomePage = () => {
+  const [opened, setOpened] = useState(false);
+
   return (
     <AppShell
-      padding="md"
+      navbarOffsetBreakpoint="sm"
       navbar={
-        <Navbar width={{ base: 250 }} p="xs">
-          {/* Navbar content */}
-          <Group spacing="xs" position={"left"}>
+        <Navbar
+          p="md"
+          hiddenBreakpoint="sm"
+          hidden={!opened}
+          width={{ sm: 200, lg: 300 }}
+        >
+          <Stack spacing="xs" align="start">
             <Button leftIcon={<IconMessages />} variant="subtle" color="dark">
               Chat
             </Button>
@@ -22,8 +38,8 @@ const HomePage = () => {
             >
               Refugee Resources
             </Button>
-          </Group>
-          <Button
+          </Stack>
+          {/* <Button
             style={{
               position: "absolute",
               bottom: 10,
@@ -33,15 +49,27 @@ const HomePage = () => {
             color="dark"
           >
             Manifesto
-          </Button>
+          </Button> */}
         </Navbar>
       }
       header={
-        <Header height={60} p="xs">
-          {/* Header content */}
-          <Title>
-            RefugeeGPT - AI Assistant to help refugees during crises
-          </Title>
+        <Header height={{ base: 50, md: 70 }} p="md">
+          <div
+            style={{ display: "flex", alignItems: "center", height: "100%" }}
+          >
+            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+              <Burger
+                opened={opened}
+                onClick={() => setOpened((o) => !o)}
+                size="sm"
+                color="gray"
+                mr="xl"
+              />
+            </MediaQuery>
+            <Text size="xl">
+              RefugeeGPT - AI Assistant to help refugees during crises
+            </Text>
+          </div>
         </Header>
       }
       styles={(theme) => ({

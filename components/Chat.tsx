@@ -100,7 +100,7 @@ const Chat = () => {
           style={{
             position: "fixed",
             bottom: 30,
-            width: "800px",
+            width: "60%",
           }}
           name="prompt"
           {...register("prompt")}
@@ -113,7 +113,7 @@ const Chat = () => {
               height: 45,
             },
           })}
-          placeholder="How can I help you?"
+          placeholder="How can I help?"
           icon={<IconSend size="22px" />}
         />
       </form>
