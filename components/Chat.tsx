@@ -17,7 +17,6 @@ import { isEmpty } from "lodash";
 import { IconRefreshAlert } from "@tabler/icons-react";
 
 type Conversation = {
-  index: number;
   prompt: string;
   message: string;
 };
@@ -51,7 +50,7 @@ type FormData = {
 type html = string;
 
 const Chat = () => {
-  const [conversation, setConversation] = useState("");
+  const [conversation, setConversation] = useState([] as Conversation[]);
 
   const {
     register,
@@ -61,103 +60,103 @@ const Chat = () => {
     formState: { errors },
   } = useForm<FormData>();
 
-  // if (typeof window !== "undefined") {
-  //   const dataFromLocalStorage = localStorage.getItem("conversation");
-  //   useEffect(
-  //     () =>
-  //       setConversation(
-  //         (JSON.parse(dataFromLocalStorage) as Conversation[]) ?? []
-  //       ),
-  //     [dataFromLocalStorage]
-  //   );
-  // }
+  if (typeof window !== "undefined") {
+    const dataFromLocalStorage = localStorage.getItem("conversation");
+    useEffect(
+      () =>
+        setConversation(
+          (JSON.parse(dataFromLocalStorage) as Conversation[]) ?? []
+        ),
+      [dataFromLocalStorage]
+    );
+  }
 
   const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
     offset: 60,
   });
-  // const onSubmit = handleSubmit((formData) => {
-  //   if (isEmpty(formData.prompt)) {
-  //     setError("prompt", { message: "Can not submit an empty message" });
-  //     return;
-  //   }
-  //   const dataToSubmit = conversation.concat([
-  //     {
-  //       prompt: formData.prompt,
-  //       message: text,
-  //     },
-  //   ]);
-  //   localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
-  //   reset({ prompt: null });
-  //   setConversation(dataToSubmit);
-  // });
-
-  const onSubmit = handleSubmit(async (formData) => {
+  const onSubmit = handleSubmit((formData) => {
     if (isEmpty(formData.prompt)) {
       setError("prompt", { message: "Can not submit an empty message" });
       return;
     }
-
-    const response = await fetch("/api/getCompletion", {
-      method: "POST",
-      headers: {
+    const dataToSubmit = conversation.concat([
+      {
         prompt: formData.prompt,
+        message: text,
       },
-    });
-    const stream = response.body.getReader();
-    let dataToSubmit;
-    const decoder = new TextDecoder("utf-8");
-    while (true) {
-      const { value, done } = await stream.read();
-      // console.log("newvalue", value);
-      const responseRaw = decoder.decode(value);
-      if (done || responseRaw === "data: [DONE]") break;
-      // console.log(responseRaw === "[DONE]");
-      // console.log("responseRaw", responseRaw, "lol");
-      // console.log("parsed", JSON.parse(responseRaw.trim()));
-
-      if (!isEmpty(responseRaw)) {
-        let parsedResponse;
-        try {
-          parsedResponse = JSON.parse(responseRaw) as OpenAISteamResponse;
-        } catch (e) {
-          // console.log("e", responseRaw);
-          console.log("end");
-        }
-        const newMessage: string | undefined =
-          parsedResponse?.choices?.at(0).delta?.content;
-        // const index = isEmpty(conversation) ? 0 : conversation.length + 1;
-        // console.log(
-        //   conversation.find((item) => item.index === index) === undefined
-        //     ? newMessage
-        //     : conversation
-        //         .find((item) => item.index === index)
-        //         .message.concat(newMessage)
-        // );
-        // // dataToSubmit = [
-        //   {
-        //     index,
-        //     prompt: formData.prompt,
-        //     message:
-        //       conversation.find((item) => item.index === index) === undefined
-        //         ? newMessage
-        //         : conversation
-        //             .find((item) => item.index === index)
-        //             .message.concat(newMessage),
-        //   },
-        // ];
-        // localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
-        // co
-        console.log(
-          "conversation.concat(newMessage)",
-          conversation.concat(newMessage)
-        );
-        setConversation(conversation.concat(newMessage));
-      }
-    }
+    ]);
+    localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
     reset({ prompt: null });
-    stream.releaseLock();
-    scrollIntoView();
+    setConversation(dataToSubmit);
   });
+
+  // const onSubmit = handleSubmit(async (formData) => {
+  //   if (isEmpty(formData.prompt)) {
+  //     setError("prompt", { message: "Can not submit an empty message" });
+  //     return;
+  //   }
+
+  //   const response = await fetch("/api/getCompletion", {
+  //     method: "POST",
+  //     headers: {
+  //       prompt: formData.prompt,
+  //     },
+  //   });
+  //   const stream = response.body.getReader();
+  //   let dataToSubmit;
+  //   const decoder = new TextDecoder("utf-8");
+  //   while (true) {
+  //     const { value, done } = await stream.read();
+  //     // console.log("newvalue", value);
+  //     const responseRaw = decoder.decode(value);
+  //     if (done || responseRaw === "data: [DONE]") break;
+  //     // console.log(responseRaw === "[DONE]");
+  //     // console.log("responseRaw", responseRaw, "lol");
+  //     // console.log("parsed", JSON.parse(responseRaw.trim()));
+
+  //     if (!isEmpty(responseRaw)) {
+  //       let parsedResponse;
+  //       try {
+  //         parsedResponse = JSON.parse(responseRaw) as OpenAISteamResponse;
+  //       } catch (e) {
+  //         // console.log("e", responseRaw);
+  //         console.log("end");
+  //       }
+  //       const newMessage: string | undefined =
+  //         parsedResponse?.choices?.at(0).delta?.content;
+  //       // const index = isEmpty(conversation) ? 0 : conversation.length + 1;
+  //       // console.log(
+  //       //   conversation.find((item) => item.index === index) === undefined
+  //       //     ? newMessage
+  //       //     : conversation
+  //       //         .find((item) => item.index === index)
+  //       //         .message.concat(newMessage)
+  //       // );
+  //       // // dataToSubmit = [
+  //       //   {
+  //       //     index,
+  //       //     prompt: formData.prompt,
+  //       //     message:
+  //       //       conversation.find((item) => item.index === index) === undefined
+  //       //         ? newMessage
+  //       //         : conversation
+  //       //             .find((item) => item.index === index)
+  //       //             .message.concat(newMessage),
+  //       //   },
+  //       // ];
+  //       // localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
+  //       // co
+  //       console.log(
+  //         "conversation.concat(newMessage)",
+  //         conversation.concat(newMessage)
+  //       );
+  //       setConversation(conversation.concat(newMessage));
+  //     }
+  //   }
+  //   reset({ prompt: null });
+  //   stream.releaseLock();
+  //   scrollIntoView();
+  // });
 
   useHotkeys([["enter", () => onSubmit()]]);
 
@@ -175,20 +174,8 @@ const Chat = () => {
         width: "100%",
       }}
     >
-      <div style={{ paddingBottom: "50px" }}>
-        <Card style={{ marginBottom: "10px" }}>
-          {/* <Card.Section>
-            <b>{}</b>
-          </Card.Section> */}
-          <Card.Section>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: conversation,
-              }}
-            />
-          </Card.Section>
-        </Card>
-        {/* {conversation.map((item, i) => {
+      <div>
+        {conversation.map((item, i) => {
           return (
             <Card key={i} style={{ marginBottom: "10px" }}>
               <Card.Section>
@@ -203,7 +190,7 @@ const Chat = () => {
               </Card.Section>
             </Card>
           );
-        })} */}
+        })}
       </div>
       <div ref={targetRef} />
 
