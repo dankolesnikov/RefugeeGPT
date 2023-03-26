@@ -10,7 +10,7 @@ import {
 import { IconSend } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useHotkeys } from "@mantine/hooks";
+import { useHotkeys, useScrollIntoView } from "@mantine/hooks";
 import { isEmpty } from "lodash";
 type Conversation = {
   prompt: string;
@@ -53,6 +53,10 @@ const Chat = () => {
     );
   }
 
+  const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
+    offset: 60,
+  });
+
   const onSubmit = handleSubmit((formData) => {
     if (isEmpty(formData.prompt)) {
       setError("prompt", { message: "Can not submit an empty message" });
@@ -67,6 +71,7 @@ const Chat = () => {
     localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
     reset({ prompt: null });
     setConversation(dataToSubmit);
+    scrollIntoView();
   });
 
   useHotkeys([["enter", () => onSubmit()]]);
@@ -94,6 +99,7 @@ const Chat = () => {
           );
         })}
       </div>
+      <div ref={targetRef} />
 
       <form onSubmit={onSubmit}>
         <TextInput
@@ -114,7 +120,7 @@ const Chat = () => {
             },
           })}
           placeholder="How can I help?"
-          icon={<IconSend size="22px" />}
+          icon={<IconSend size="22px" onClick={() => onSubmit()} />}
         />
       </form>
     </Paper>
