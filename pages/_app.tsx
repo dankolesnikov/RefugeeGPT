@@ -1,10 +1,15 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, MantineThemeOverride } from "@mantine/core";
 import React from "react";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
+  const theme: MantineThemeOverride = {
+    primaryColor: "dark",
+    fontFamily:
+      "Inter,-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,Arial, Noto Sans",
+  };
   const pageName = "RefugeeGPT - AI Assistant for Refugees";
   return (
     <>
@@ -35,6 +40,7 @@ export default function App(props: AppProps) {
         theme={{
           /** Put your mantine theme override here */
           colorScheme: "light",
+          ...theme,
         }}
       >
         <Component {...pageProps} />

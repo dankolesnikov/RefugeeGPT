@@ -12,15 +12,15 @@ const HomePage = () => {
         <Navbar width={{ base: 250 }} p="xs">
           {/* Navbar content */}
           <Group spacing="xs" position={"left"}>
+            <Button leftIcon={<IconMessages />} variant="subtle" color="dark">
+              Chat
+            </Button>
             <Button
               leftIcon={<IconMedicalCross />}
               variant="subtle"
               color="dark"
             >
               Refugee Resources
-            </Button>
-            <Button leftIcon={<IconMessages />} variant="subtle" color="dark">
-              Pinned Messages
             </Button>
           </Group>
           <Button

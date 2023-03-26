@@ -12,6 +12,7 @@
     "@mantine/hooks": "false6.0.4",
     "@mantine/next": "false6.0.4",
     "@tabler/icons-react": "false2.11.0",
+    "@types/lodash": "false4.14.191",
     "date-fns": "^2.29.3",
     "eslint-plugin-unused-imports": "false2.0.0",
     "gray-matter": "^4.0.3",
