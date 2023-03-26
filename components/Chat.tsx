@@ -6,12 +6,16 @@ import {
   Stack,
   ScrollArea,
   Overlay,
+  Button,
+  ActionIcon,
 } from "@mantine/core";
 import { IconSend } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useHotkeys, useScrollIntoView } from "@mantine/hooks";
 import { isEmpty } from "lodash";
+import { IconRefreshAlert } from "@tabler/icons-react";
+
 type Conversation = {
   prompt: string;
   message: string;
@@ -21,15 +25,7 @@ type FormData = {
   prompt: string;
 };
 
-const text = `
-Certainly, here is the advice on how to protect yourself from a bomb:<br />
-1. Assess the situation: Start by evaluating the risks associated with the specific situation to determine your course of action. Consider your location and the source of the threat.<br />
-2. Protect against blast: Find a room with thick walls, if possible without windows. This could be a basement, the center of a building, or another space that provides additional protection from the blast and radiation.<br />
-3. Protect against debris: Stay away from windows and doors to avoid falling glass and other debris that could be lethal in an explosion.<br />
-4. Cover yourself: Wrap your body in a blanket, mattress, or other heavy material that can help protect you from debris and radiation.<br />
-5. Protect your airways: Dampen a cloth with water and cover your nose and mouth to reduce the intake of dust and toxic substances.<br />
-6. Stay informed: Follow the news or use a battery-powered radio to receive information about the situation and instructions on when it is safe to leave shelter.<br />
-7. Be prepared for evacuation: Keep an emergency survival kit containing food, water, medications, clothing, and other essential items that may be needed after the explosion.`;
+type html = string;
 
 const Chat = () => {
   const [conversation, setConversation] = useState([] as Conversation[]);
@@ -57,15 +53,24 @@ const Chat = () => {
     offset: 60,
   });
 
-  const onSubmit = handleSubmit((formData) => {
+  const onSubmit = handleSubmit(async (formData) => {
     if (isEmpty(formData.prompt)) {
       setError("prompt", { message: "Can not submit an empty message" });
       return;
     }
+
+    const response = await fetch("/api/getCompletion", {
+      method: "POST",
+      headers: {
+        prompt: formData.prompt,
+      },
+    });
+    const output: { message: html } = await response.json();
+    console.log(output);
     const dataToSubmit = conversation.concat([
       {
         prompt: formData.prompt,
-        message: text,
+        message: output.message,
       },
     ]);
     localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
@@ -75,6 +80,11 @@ const Chat = () => {
   });
 
   useHotkeys([["enter", () => onSubmit()]]);
+
+  const clearChat = () => {
+    localStorage.clear();
+    setConversation([]);
+  };
 
   return (
     <Paper
@@ -93,7 +103,11 @@ const Chat = () => {
                 <b>{item.prompt}</b>
               </Card.Section>
               <Card.Section>
-                <div dangerouslySetInnerHTML={{ __html: item.message }} />
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: item.message.replace(/\n/g, "<br />"),
+                  }}
+                />
               </Card.Section>
             </Card>
           );
@@ -123,6 +137,12 @@ const Chat = () => {
           icon={<IconSend size="22px" onClick={() => onSubmit()} />}
         />
       </form>
+      <ActionIcon
+        onClick={() => clearChat()}
+        style={{ position: "fixed", bottom: 39, left: 1215, alignItems: "end" }}
+      >
+        <IconRefreshAlert />
+      </ActionIcon>
     </Paper>
   );
 };
