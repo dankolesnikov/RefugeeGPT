@@ -160,10 +160,10 @@ const Chat = () => {
 
   useHotkeys([["enter", () => onSubmit()]]);
 
-  // const clearChat = () => {
-  //   localStorage.clear();
-  //   setConversation([]);
-  // };
+  const clearChat = () => {
+    localStorage.clear();
+    setConversation([]);
+  };
 
   return (
     <Paper
@@ -217,7 +217,7 @@ const Chat = () => {
         />
       </form>
       <ActionIcon
-        // onClick={() => clearChat()}
+        onClick={() => clearChat()}
         style={{ position: "fixed", bottom: 39, left: 1215, alignItems: "end" }}
       >
         <IconRefreshAlert />
