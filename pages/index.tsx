@@ -12,11 +12,12 @@ import { IconMedicalCross, IconMessages } from "@tabler/icons-react";
 import { useState } from "react";
 
 import Chat from "../components/Chat";
+import { useMediaQuery } from "@mantine/hooks";
 
 // import { IconBook } from "@tabler/icons-react";
 const HomePage = () => {
   const [opened, setOpened] = useState(false);
-
+  const mobileWidth = useMediaQuery("(max-width: 390px)");
   return (
     <AppShell
       navbarOffsetBreakpoint="sm"
@@ -66,7 +67,7 @@ const HomePage = () => {
                 mr="xl"
               />
             </MediaQuery>
-            <Text size="xl">
+            <Text size={mobileWidth === true ? "14px" : "xl"}>
               RefugeeGPT - AI Assistant to help refugees during crises
             </Text>
           </div>
