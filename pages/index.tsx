@@ -36,6 +36,7 @@ const HomePage = () => {
               leftIcon={<IconMedicalCross />}
               variant="subtle"
               color="dark"
+              disabled
             >
               Refugee Resources
             </Button>

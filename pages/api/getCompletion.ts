@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { isEmpty } from "lodash";
 
 export const config = {
   runtime: "edge",
@@ -29,11 +30,9 @@ export default async function handler(req: NextRequest) {
   const payload: OpenAICompletionsPayload = {
     model: models.GPT4,
     messages: [{ role: "user", content: improvedPrompt }],
-    // prompt: improvedPrompt,
     temperature: 0,
-    stream: false,
+    stream: true,
   };
-  console.log(payload);
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     headers: {
       "Content-Type": "application/json",
@@ -42,19 +41,23 @@ export default async function handler(req: NextRequest) {
     method: "POST",
     body: JSON.stringify(payload),
   });
-  const data = await res.json();
-  let message;
-  try {
-    message = data.choices[0].message.content;
-  } catch (e) {
-    console.error(e);
-    console.error(data);
-    message = "I failed.";
-  }
-  return new Response(JSON.stringify({ message }), {
-    status: 200,
-    headers: {
-      "content-type": "application/json",
+  const stream = res.body.getReader();
+  const encoder = new TextEncoder();
+
+  const readable = new ReadableStream({
+    async start(controller) {
+      while (true) {
+        const { value, done } = await stream.read();
+        const response = new TextDecoder().decode(value);
+        if (done || response === "[DONE]" || isEmpty(response)) break;
+        console.log("sending", response.slice(6));
+        controller.enqueue(encoder.encode(response.slice(6)));
+      }
+      controller.close();
     },
+  });
+
+  return new Response(readable, {
+    headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
