@@ -51,6 +51,7 @@ export default async function handler(req: NextRequest) {
         const response = new TextDecoder().decode(value);
         if (done || response === "[DONE]" || isEmpty(response)) break;
         console.log("sending", response.slice(6));
+        // im decoding and encoding. is that a neccesary step? cani  be remvoed?
         controller.enqueue(encoder.encode(response.slice(6)));
       }
       controller.close();
