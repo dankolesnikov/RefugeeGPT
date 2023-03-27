@@ -28,7 +28,7 @@ export default async function handler(req: NextRequest) {
     "prompt"
   )}`;
   const payload: OpenAICompletionsPayload = {
-    model: models.GPT4,
+    model: models.GPT3,
     messages: [{ role: "user", content: improvedPrompt }],
     temperature: 0,
     stream: true,
@@ -49,10 +49,20 @@ export default async function handler(req: NextRequest) {
       while (true) {
         const { value, done } = await stream.read();
         const response = new TextDecoder().decode(value);
-        if (done || response === "[DONE]" || isEmpty(response)) break;
-        console.log("sending", response.slice(6));
-        // im decoding and encoding. is that a neccesary step? cani  be remvoed?
-        controller.enqueue(encoder.encode(response.slice(6)));
+        if (response === "data: [DONE]" || response === "[DONE]") {
+          console.log("HIT");
+        }
+        if (
+          done ||
+          response === "data: [DONE]" ||
+          response === "[DONE]" ||
+          isEmpty(response)
+        ) {
+          break;
+        } else {
+          // console.log("sending", response.slice(6));
+          controller.enqueue(encoder.encode(response.slice(6)));
+        }
       }
       controller.close();
     },

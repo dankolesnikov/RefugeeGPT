@@ -50,9 +50,7 @@ type FormData = {
 type html = string;
 
 const Chat = () => {
-  // const [conversation, setConversation] = useState([] as Conversation[]);
-  const [conversation, setConversation] = useState("");
-
+  const [conversation, setConversation] = useState([]);
   const {
     register,
     handleSubmit,
@@ -76,71 +74,27 @@ const Chat = () => {
     offset: 60,
   });
 
-  const getCompletionsCallback = useCallback(async (prompt: string) => {
-    const response = await fetch("/api/getCompletion", {
-      method: "POST",
-      headers: {
-        prompt: prompt,
-      },
-    });
-    const stream = response.body.getReader();
-    // let dataToSubmit;
-    const decoder = new TextDecoder("utf-8");
-    while (true) {
-      const { value, done } = await stream.read();
-      const responseRaw = decoder.decode(value);
-      if (done || responseRaw === "data: [DONE]") break;
-
-      // if (!isEmpty(responseRaw)) {
-      //   let parsedResponse;
-      //   try {
-      //     parsedResponse = JSON.parse(responseRaw) as OpenAISteamResponse;
-      //   } catch (e) {
-      //     console.log("end");
-      //   }
-      //   const newMessage: string | undefined =
-      //     parsedResponse?.choices?.at(0).delta?.content;
-      //   const index = isEmpty(conversation) ? 0 : conversation.length + 1;
-      //   console.log(
-      //     conversation.find((item) => item.index === index) === undefined
-      //       ? newMessage
-      //       : conversation
-      //           .find((item) => item.index === index)
-      //           .message.concat(newMessage)
-      //   );
-      //   dataToSubmit = [
-      //     {
-      //       index,
-      //       prompt: formData.prompt,
-      //       message:
-      //         conversation.find((item) => item.index === index) === undefined
-      //           ? newMessage
-      //           : conversation
-      //               .find((item) => item.index === index)
-      //               .message.concat(newMessage),
-      //     },
-      //   ];
-      // localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
+  const getCompletionsCallback = useCallback(
+    async (prompt: string) => {
+      const response = await fetch("/api/getCompletion", {
+        method: "POST",
+        headers: {
+          prompt: prompt,
+        },
+      });
+      const stream = response.body.getReader();
+      // let dataToSubmit;
+      const decoder = new TextDecoder("utf-8");
+      while (true) {
+        const { value, done } = await stream.read();
+        const responseRaw = decoder.decode(value);
+        if (done) break;
+        setConversation((prevState) => [...prevState, responseRaw]);
+      }
       stream.releaseLock();
-      setConversation(conversation.concat(responseRaw));
-    }
-  }, []);
-
-  // const onSubmit = handleSubmit((formData) => {
-  //   if (isEmpty(formData.prompt)) {
-  //     setError("prompt", { message: "Can not submit an empty message" });
-  //     return;
-  //   }
-  //   const dataToSubmit = conversation.concat([
-  //     {
-  //       prompt: formData.prompt,
-  //       message: text,
-  //     },
-  //   ]);
-  //   localStorage.setItem("conversation", JSON.stringify(dataToSubmit));
-  //   reset({ prompt: null });
-  //   setConversation(dataToSubmit);
-  // });
+    },
+    [conversation]
+  );
 
   const onSubmit = handleSubmit(async (formData) => {
     if (isEmpty(formData.prompt)) {
@@ -148,7 +102,6 @@ const Chat = () => {
       return;
     }
     getCompletionsCallback(formData.prompt);
-
     scrollIntoView();
   });
 
@@ -156,7 +109,7 @@ const Chat = () => {
 
   const clearChat = () => {
     localStorage.clear();
-    setConversation("");
+    setConversation([]);
   };
 
   return (
@@ -169,38 +122,24 @@ const Chat = () => {
       }}
     >
       <div>
-        {/* {conversation.map((item, i) => {
+        {conversation.map((item, i) => {
           return (
             <Card key={i} style={{ marginBottom: "10px" }}>
               <Card.Section>
-                <b>{item.prompt}</b>
+                <b>{}</b>
               </Card.Section>
               <Card.Section>
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: item.message,
+                    __html: item,
                   }}
                 />
               </Card.Section>
             </Card>
           );
-        })} */}
-        {
-          <Card style={{ marginBottom: "10px" }}>
-            <Card.Section>
-              <b>{}</b>
-            </Card.Section>
-            <Card.Section>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: conversation,
-                }}
-              />
-            </Card.Section>
-          </Card>
-        }
+        })}
       </div>
-      <div ref={targetRef} />
+      <div ref={targetRef} style={{ paddingBottom: "200px" }} />
 
       <form onSubmit={onSubmit}>
         <TextInput
