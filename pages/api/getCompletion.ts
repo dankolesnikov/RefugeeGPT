@@ -17,30 +17,6 @@ interface OpenAICompletionsPayload {
   stream?: boolean;
   n?: number;
 }
-// {
-//   "id": "chatcmpl-6yohnG1zrDDjrIaGK1iO60ItV9UtV",
-//   "object": "chat.completion.chunk",
-//   "created": 1679952611,
-//   "model": "gpt-3.5-turbo-0301",
-//   "choices": [
-//     {
-//       "delta": {},
-//       "index": 0,
-//       "finish_reason": "stop"
-//     }
-//   ]
-// }
-type OpenAICompletionsOutput = {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: {
-    delta: any;
-    index: number;
-    finish_reason;
-  }[];
-};
 
 enum models {
   GPT4 = "gpt-4",
