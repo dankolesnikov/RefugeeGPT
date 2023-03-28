@@ -51,20 +51,9 @@ const Chat = () => {
     formState: { errors },
   } = useForm<FormData>();
 
-  // if (typeof window !== "undefined") {
-  //   const dataFromLocalStorage = localStorage.getItem("conversation");
-  //   useEffect(
-  //     () =>
-  //       setConversation(
-  //         (JSON.parse(dataFromLocalStorage) as Conversation[]) ?? []
-  //       ),
-  //     [dataFromLocalStorage]
-  //   );
-  // }
-
-  // const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
-  //   offset: 60,
-  // });
+  const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
+    offset: 60,
+  });
 
   const getCompletionsCallback = useCallback(
     async (prompt: string) => {
@@ -132,7 +121,6 @@ const Chat = () => {
         }
       }
       stream.releaseLock();
-      // localStorage.setItem("conversation", JSON.stringify(conversation));
     },
     [conversation]
   );
@@ -144,7 +132,7 @@ const Chat = () => {
     }
     await getCompletionsCallback(formData.prompt);
     reset({ prompt: null });
-    // scrollIntoView();
+    scrollIntoView();
   });
 
   useHotkeys([["enter", () => onSubmit()]]);

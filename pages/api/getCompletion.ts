@@ -28,7 +28,7 @@ export default async function handler(req: NextRequest) {
     "prompt"
   )}`;
   const payload: OpenAICompletionsPayload = {
-    model: models.GPT3,
+    model: models.GPT4,
     messages: [{ role: "user", content: improvedPrompt }],
     temperature: 0,
     stream: true,
