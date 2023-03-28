@@ -169,7 +169,7 @@ const Chat = () => {
           );
         })}
       </div>
-      {/* <div ref={targetRef} style={{ paddingBottom: "200px" }} /> */}
+      <div ref={targetRef} style={{ paddingBottom: "200px" }} />
 
       <form onSubmit={onSubmit}>
         <Group
