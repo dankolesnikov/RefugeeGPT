@@ -17,6 +17,30 @@ interface OpenAICompletionsPayload {
   stream?: boolean;
   n?: number;
 }
+// {
+//   "id": "chatcmpl-6yohnG1zrDDjrIaGK1iO60ItV9UtV",
+//   "object": "chat.completion.chunk",
+//   "created": 1679952611,
+//   "model": "gpt-3.5-turbo-0301",
+//   "choices": [
+//     {
+//       "delta": {},
+//       "index": 0,
+//       "finish_reason": "stop"
+//     }
+//   ]
+// }
+type OpenAICompletionsOutput = {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: {
+    delta: any;
+    index: number;
+    finish_reason;
+  }[];
+};
 
 enum models {
   GPT4 = "gpt-4",
@@ -42,26 +66,15 @@ export default async function handler(req: NextRequest) {
     body: JSON.stringify(payload),
   });
   const stream = res.body.getReader();
-  const encoder = new TextEncoder();
 
   const readable = new ReadableStream({
     async start(controller) {
       while (true) {
         const { value, done } = await stream.read();
-        const response = new TextDecoder().decode(value);
-        if (response === "data: [DONE]" || response === "[DONE]") {
-          console.log("HIT");
-        }
-        if (
-          done ||
-          response === "data: [DONE]" ||
-          response === "[DONE]" ||
-          isEmpty(response)
-        ) {
+        if (done) {
           break;
         } else {
-          // console.log("sending", response.slice(6));
-          controller.enqueue(encoder.encode(response.slice(6)));
+          controller.enqueue(value);
         }
       }
       controller.close();
