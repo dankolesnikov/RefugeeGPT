@@ -8,7 +8,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Conversation, OpenAIResponse, ResponseStatus } from "../utils/types";
 import { CreateChatCompletionResponse } from "openai";
-import { PuffLoader, ScaleLoader, SyncLoader } from "react-spinners";
+import {
+  PropagateLoader,
+  PuffLoader,
+  PulseLoader,
+  ScaleLoader,
+  SyncLoader,
+} from "react-spinners";
 
 type FormData = {
   prompt: string;
@@ -105,11 +111,7 @@ const Chat = () => {
               </Card.Section>
               <Card.Section>
                 {item.isPending ? (
-                  <ScaleLoader
-                    color="#202425"
-                    height={"20px"}
-                    style={{ paddingTop: "5px" }}
-                  />
+                  <PulseLoader size={8} color="#202425" />
                 ) : (
                   <div
                     dangerouslySetInnerHTML={{
