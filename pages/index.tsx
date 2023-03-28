@@ -32,6 +32,14 @@ const HomePage = () => {
               Chat
             </Button>
             <Button
+              disabled
+              leftIcon={<IconMessages />}
+              variant="subtle"
+              color="dark"
+            >
+              Chat Streaming
+            </Button>
+            <Button
               leftIcon={<IconMedicalCross />}
               variant="subtle"
               color="dark"
