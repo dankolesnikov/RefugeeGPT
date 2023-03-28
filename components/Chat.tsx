@@ -57,7 +57,7 @@ const Chat = () => {
 
   const getCompletionsCallback = useCallback(
     async (prompt: string) => {
-      const response = await fetch("/api/getCompletion", {
+      const response = await fetch("/api/getCompletionEdge", {
         method: "POST",
         headers: {
           prompt: prompt,
@@ -176,7 +176,7 @@ const Chat = () => {
           style={{
             position: "fixed",
             bottom: 30,
-            width: "60%",
+            width: "70%",
           }}
         >
           <TextInput

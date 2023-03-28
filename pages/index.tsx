@@ -14,7 +14,6 @@ import { useState } from "react";
 import Chat from "../components/Chat";
 import { useMediaQuery } from "@mantine/hooks";
 
-// import { IconBook } from "@tabler/icons-react";
 const HomePage = () => {
   const [opened, setOpened] = useState(false);
   const mobileWidth = useMediaQuery("(max-width: 390px)");
@@ -41,17 +40,6 @@ const HomePage = () => {
               Refugee Resources
             </Button>
           </Stack>
-          {/* <Button
-            style={{
-              position: "absolute",
-              bottom: 10,
-            }}
-            leftIcon={<IconBook />}
-            variant="subtle"
-            color="dark"
-          >
-            Manifesto
-          </Button> */}
         </Navbar>
       }
       header={

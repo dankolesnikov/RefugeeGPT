@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { isEmpty } from "lodash";
+import { OPENAI_API_KEY } from "../../utils/variables";
 
 export const config = {
   runtime: "edge",
@@ -36,13 +37,12 @@ export default async function handler(req: NextRequest) {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     method: "POST",
     body: JSON.stringify(payload),
   });
   const stream = res.body.getReader();
-
   const readable = new ReadableStream({
     async start(controller) {
       while (true) {

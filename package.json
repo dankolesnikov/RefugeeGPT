@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "doppler run -- next dev",
     "build": "next build",
     "start": "next start"
   },
@@ -11,6 +11,7 @@
     "@mantine/core": "false6.0.4",
     "@mantine/hooks": "false6.0.4",
     "@mantine/next": "false6.0.4",
+    "@segment/snippet": "false4.15.3",
     "@tabler/icons-react": "false2.11.0",
     "@types/lodash": "false4.14.191",
     "date-fns": "^2.29.3",
