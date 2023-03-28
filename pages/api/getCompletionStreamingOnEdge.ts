@@ -1,35 +1,18 @@
 import type { NextRequest } from "next/server";
 import { isEmpty } from "lodash";
 import { OPENAI_API_KEY } from "../../utils/variables";
+import { OpenAICompletionsPayload, models } from "../../utils/types";
 
 export const config = {
   runtime: "edge",
 };
-
-interface OpenAICompletionsPayload {
-  model: string;
-  prompt?: string;
-  messages: { role: string; content: string }[];
-  temperature: number;
-  max_tokens?: number;
-  top_p?: number;
-  frequency_penalty?: number;
-  presence_penalty?: number;
-  stream?: boolean;
-  n?: number;
-}
-
-enum models {
-  GPT4 = "gpt-4",
-  GPT3 = "gpt-3.5-turbo",
-}
 
 export default async function handler(req: NextRequest) {
   const improvedPrompt = `I am a refugee experiencing a humanitarian crises. I need your help assisting with the folowing question: ${req.headers.get(
     "prompt"
   )}`;
   const payload: OpenAICompletionsPayload = {
-    model: models.GPT4,
+    model: models.GPT3,
     messages: [{ role: "user", content: improvedPrompt }],
     temperature: 0,
     stream: true,

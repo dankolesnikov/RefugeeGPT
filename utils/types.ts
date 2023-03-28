@@ -1,7 +1,10 @@
+import { ChatCompletionRequestMessage } from "openai";
+
 export type Conversation = {
-  id: string;
+  id?: string;
   prompt: string;
-  message: string;
+  message?: string;
+  isPending: boolean;
 };
 
 export type OpenAISteamResponseContent = {
@@ -43,3 +46,21 @@ export type OpenAIResponse =
     };
 
 export type html = string;
+
+export type OpenAICompletionsPayload = {
+  model: string;
+  prompt?: string;
+  messages: Array<ChatCompletionRequestMessage>; //{ role: string; content: string }[];
+  temperature: number;
+  max_tokens?: number;
+  top_p?: number;
+  frequency_penalty?: number;
+  presence_penalty?: number;
+  stream?: boolean;
+  n?: number;
+};
+
+export enum models {
+  GPT4 = "gpt-4",
+  GPT3 = "gpt-3.5-turbo",
+}

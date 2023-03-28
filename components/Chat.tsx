@@ -1,3 +1,5 @@
+// CreateChatCompletionResponse
+
 import { ActionIcon, Card, Group, Paper, TextInput } from "@mantine/core";
 import { useHotkeys, useScrollIntoView } from "@mantine/hooks";
 import { IconRefreshAlert, IconSend } from "@tabler/icons-react";
@@ -5,36 +7,8 @@ import { isEmpty } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Conversation, OpenAIResponse, ResponseStatus } from "../utils/types";
-
-const parseGetCompletionResult = (input: string): OpenAIResponse => {
-  const temp = input.replace("data", `"data"`);
-  if (input.includes("DONE")) {
-    return {
-      data: null,
-      status: ResponseStatus.Finished,
-    };
-  }
-  const updatedString = `{${temp}}`;
-  try {
-    const responseInJson1 = JSON.parse(updatedString);
-    if (isEmpty(responseInJson1.data.choices[0].delta.content)) {
-      return {
-        data: null,
-        status: ResponseStatus.Unrelated,
-      };
-    }
-    return {
-      data: responseInJson1.data,
-      status: ResponseStatus.Suceeded,
-    };
-  } catch (e) {
-    return {
-      data: updatedString,
-      error: e,
-      status: ResponseStatus.Failed,
-    };
-  }
-};
+import { CreateChatCompletionResponse } from "openai";
+import { PuffLoader, ScaleLoader, SyncLoader } from "react-spinners";
 
 type FormData = {
   prompt: string;
@@ -42,6 +16,7 @@ type FormData = {
 
 const Chat = () => {
   const [conversation, setConversation] = useState([] as Conversation[]);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -57,70 +32,37 @@ const Chat = () => {
 
   const getCompletionsCallback = useCallback(
     async (prompt: string) => {
-      const response = await fetch("/api/getCompletionEdge", {
+      setLoading(true);
+      setConversation((prevState) => [
+        ...prevState,
+        {
+          prompt,
+          isPending: true,
+        },
+      ]);
+      const response = await fetch("/api/getCompletion", {
         method: "POST",
+        body: JSON.stringify(prompt),
         headers: {
           prompt: prompt,
         },
       });
-      const stream = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      while (true) {
-        const { value, done } = await stream.read();
-        if (done) break;
-        const responseRaw = decoder.decode(value);
-        const parsedResponse = parseGetCompletionResult(responseRaw);
+      const data: CreateChatCompletionResponse = await response.json();
+      setLoading(false);
 
-        switch (parsedResponse.status) {
-          case ResponseStatus.Suceeded:
-            try {
-              setConversation((prevState) => {
-                const id = parsedResponse.data.id;
-                const index = prevState.findIndex((item) => item.id === id);
-                const message = parsedResponse.data.choices[0].delta.content;
-
-                if (index === -1) {
-                  // first word of the message
-                  return [
-                    ...prevState,
-                    {
-                      id,
-                      prompt,
-                      message,
-                    },
-                  ];
-                } else {
-                  // update exisitng message
-                  const currentMessage = prevState[index].message;
-                  const dataWithoutCurrentConvo = prevState.filter(
-                    (item) => item.id !== id
-                  );
-                  return [
-                    ...dataWithoutCurrentConvo,
-                    {
-                      id,
-                      prompt,
-                      message: currentMessage.concat(message),
-                    },
-                  ];
-                }
-              });
-            } catch {
-              console.log("error in suceeded");
-              console.log(parsedResponse);
-            }
-          case ResponseStatus.Finished:
-            break;
-          case ResponseStatus.Failed:
-            console.log("Failed to parse:");
-            console.log(parsedResponse.data);
-          case ResponseStatus.Unrelated:
-            console.log("Unrelated");
-          default:
-            console.log("whats wrong");
-        }
-      }
-      stream.releaseLock();
+      setConversation((prevState) => {
+        return prevState.map((item) => {
+          if (item.isPending) {
+            return {
+              id: data.id,
+              prompt: item.prompt,
+              message: data.choices[0].message.content,
+              isPending: false,
+            };
+          }
+          return item;
+        });
+      });
     },
     [conversation]
   );
@@ -159,11 +101,19 @@ const Chat = () => {
                 <b>{item.prompt}</b>
               </Card.Section>
               <Card.Section>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: item.message,
-                  }}
-                />
+                {item.isPending ? (
+                  <ScaleLoader
+                    color="#202425"
+                    height={"20px"}
+                    style={{ paddingTop: "5px" }}
+                  />
+                ) : (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: item.message,
+                    }}
+                  />
+                )}
               </Card.Section>
             </Card>
           );
@@ -182,6 +132,7 @@ const Chat = () => {
           <TextInput
             style={{ width: "inherit" }}
             name="prompt"
+            disabled={loading}
             {...register("prompt")}
             error={errors.prompt?.message}
             styles={() => ({
@@ -193,7 +144,13 @@ const Chat = () => {
               },
             })}
             placeholder="How can I help?"
-            icon={<IconSend size="22px" onClick={() => onSubmit()} />}
+            icon={
+              loading ? (
+                <PuffLoader color="#202425" size={15} />
+              ) : (
+                <IconSend size="22px" onClick={() => onSubmit()} />
+              )
+            }
           />
           <ActionIcon onClick={() => clearChat()}>
             <IconRefreshAlert />
