@@ -40,9 +40,12 @@ const Chat = () => {
           isPending: true,
         },
       ]);
+      const payload = {
+        prompt: prompt,
+      };
       const response = await fetch("/api/getCompletion", {
         method: "POST",
-        body: JSON.stringify(prompt),
+        body: JSON.stringify(payload),
         headers: {
           prompt: prompt,
         },

@@ -1,14 +1,12 @@
 import * as OpenAI from "../../services/openai";
 import { OpenAICompletionsPayload, models } from "../../utils/types";
+import { IS_DEV } from "../../utils/variables";
 
 export default async function handler(req, res) {
-  console.log(req.body);
-  //   const improvedPrompt = `I am a refugee experiencing a humanitarian crises. I need your help assisting with the folowing question: ${req.headers.get(
-  //     "prompt"
-  //   )}`;
-  const improvedPrompt = "how are you?";
+  const body = JSON.parse(req.body);
+  const improvedPrompt = `I am a refugee experiencing a humanitarian crises. I need your help assisting with the folowing question: ${body.prompt}`;
   const payload: OpenAICompletionsPayload = {
-    model: models.GPT3,
+    model: IS_DEV ? models.GPT3 : models.GPT4,
     messages: [{ role: "user", content: improvedPrompt }],
     temperature: 0.3,
     stream: false,
@@ -16,7 +14,6 @@ export default async function handler(req, res) {
 
   const response = await OpenAI.client.createChatCompletion(payload);
   if (response.status === 200) {
-    console.log(response.data);
     res.status(200).json(response.data);
   } else {
     res.status(503);

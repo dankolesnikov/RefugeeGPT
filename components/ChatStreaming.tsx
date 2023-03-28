@@ -77,6 +77,7 @@ const ChatStreaming = () => {
         switch (parsedResponse.status) {
           case ResponseStatus.Suceeded:
             try {
+              // @ts-expect-error
               setConversation((prevState) => {
                 const id = parsedResponse.data.id;
                 const index = prevState.findIndex((item) => item.id === id);
